@@ -1,7 +1,9 @@
+import { useContext } from "react";
 import { Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Button from "react-bootstrap/Button";
 
+import { UsersContext } from "../../../App"; //Not the pretty one import
 import { Input } from "components";
 
 const SignUpSchema = Yup.object().shape({
@@ -32,11 +34,25 @@ type SignUpProps = {
 };
 
 function SignUp({ onSignUp }: SignUpProps) {
+  const { users, addUser } = useContext(UsersContext);
+
   const submitHandler = (
     values: SignUpFormData,
     actions: FormikHelpers<SignUpFormData>
   ) => {
     const stringValues = JSON.stringify(values, null, 2);
+    const userExists =
+      users.filter((user) => user.email === values.email).length > 0;
+    if (userExists) {
+      actions.setStatus({
+        email: "This email already exists",
+      });
+      actions.setSubmitting(false);
+      return;
+    }
+
+    addUser({ email: values.email, password: values.password });
+
     alert(`Signed up successfuly: ${stringValues}`);
     actions.setSubmitting(false);
     actions.resetForm();
@@ -49,7 +65,7 @@ function SignUp({ onSignUp }: SignUpProps) {
       onSubmit={submitHandler}
       validationSchema={SignUpSchema}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, status }) => (
         <Form>
           <Input
             name={"email"}
@@ -58,6 +74,7 @@ function SignUp({ onSignUp }: SignUpProps) {
             label={"Email"}
             error={errors["email"]}
             touched={touched["email"]}
+            status={status?.["email"]}
           />
           <Input
             name={"password"}

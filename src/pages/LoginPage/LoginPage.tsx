@@ -1,12 +1,13 @@
+import { useContext, useState } from "react";
 import { Row, Button, Col } from "react-bootstrap";
 import { Formik, FormikHelpers, Form } from "formik";
 import * as Yup from "yup";
 
 import { CenteredModal, Input } from "components";
 import SignUp from "./SingUp/SignUp";
+import { UsersContext } from "../../App"; //No
 
 import styles from "./styles.module.scss";
-import { useState } from "react";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -25,6 +26,7 @@ const initialValues: LoginFormData = { email: "", password: "" };
 
 export default function LoginPage() {
   const [showModal, setShowModal] = useState(false);
+  const { users } = useContext(UsersContext);
 
   const toggleModal = () => {
     setShowModal((prev) => !prev);
@@ -35,6 +37,19 @@ export default function LoginPage() {
     actions: FormikHelpers<LoginFormData>
   ) => {
     const stringValues = JSON.stringify(values, null, 2);
+    const userExists =
+      users.filter(
+        (user) =>
+          user.email === values.email && user.password === values.password
+      ).length > 0;
+    if (!userExists) {
+      actions.setSubmitting(false);
+      actions.setStatus({
+        password: "Wrong email or password",
+      });
+      return;
+    }
+    actions.resetForm();
     alert(`Logged in successfuly: ${stringValues}`);
     actions.setSubmitting(false);
   };
@@ -48,7 +63,7 @@ export default function LoginPage() {
         onSubmit={submitHandler}
         validationSchema={LoginSchema}
       >
-        {({ errors, resetForm, touched }) => (
+        {({ errors, touched, status }) => (
           <Form className={styles.form}>
             <Input
               name={"email"}
@@ -65,6 +80,7 @@ export default function LoginPage() {
               label={"Password"}
               error={errors["password"]}
               touched={touched["password"]}
+              status={status?.["password"]}
             />
             <Row className="mt-5">
               <Col>
@@ -73,14 +89,7 @@ export default function LoginPage() {
                 </Button>
               </Col>
               <Col className="text-end">
-                <Button variant="outline-primary" onClick={() => resetForm()}>
-                  Reset form
-                </Button>
-              </Col>
-            </Row>
-            <Row className="mt-4">
-              <Col className="text-center">
-                <Button variant="success" onClick={toggleModal}>
+                <Button variant="outline-success" onClick={toggleModal}>
                   Sign-up
                 </Button>
               </Col>

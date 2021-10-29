@@ -8,6 +8,7 @@ type InputProps = {
   type?: string;
   placeholder?: string;
   label?: string;
+  status?: string;
   touched?: boolean;
 };
 
@@ -15,6 +16,7 @@ function Input({
   name,
   error,
   touched,
+  status,
   placeholder,
   type = "text",
   label,
@@ -28,6 +30,7 @@ function Input({
         name={name}
         placeholder={placeholder}
       />
+      {!!status && <Form.Text className="text-danger ">{status}</Form.Text>}
       {!!error && touched && (
         <Form.Text className="text-danger ">{error}</Form.Text>
       )}
