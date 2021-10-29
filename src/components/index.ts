@@ -1,3 +1,4 @@
 import Input from "./Input/Input";
+import CenteredModal from "./CenteredModal/CenteredModal";
 
-export { Input };
+export { Input, CenteredModal };

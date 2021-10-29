@@ -2,9 +2,11 @@ import { Row, Button, Col } from "react-bootstrap";
 import { Formik, FormikHelpers, Form } from "formik";
 import * as Yup from "yup";
 
-import { Input } from "components";
+import { CenteredModal, Input } from "components";
+import SignUp from "./SingUp/SignUp";
 
 import styles from "./styles.module.scss";
+import { useState } from "react";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -22,14 +24,18 @@ interface LoginFormData {
 const initialValues: LoginFormData = { email: "", password: "" };
 
 export default function LoginPage() {
+  const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = () => {
+    setShowModal((prev) => !prev);
+  };
+
   const submitHandler = (
     values: LoginFormData,
     actions: FormikHelpers<LoginFormData>
   ) => {
     const stringValues = JSON.stringify(values, null, 2);
-
     alert(`Logged in successfuly: ${stringValues}`);
-    // actions.resetForm();
     actions.setSubmitting(false);
   };
 
@@ -63,7 +69,7 @@ export default function LoginPage() {
             <Row className="mt-5">
               <Col>
                 <Button variant="primary" type="submit">
-                  Submit
+                  Log in
                 </Button>
               </Col>
               <Col className="text-end">
@@ -72,9 +78,19 @@ export default function LoginPage() {
                 </Button>
               </Col>
             </Row>
+            <Row className="mt-4">
+              <Col className="text-center">
+                <Button variant="success" onClick={toggleModal}>
+                  Sign-up
+                </Button>
+              </Col>
+            </Row>
           </Form>
         )}
       </Formik>
+      <CenteredModal show={showModal} onToggle={toggleModal}>
+        <SignUp onSignUp={toggleModal} />
+      </CenteredModal>
     </Row>
   );
 }
